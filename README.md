@@ -1,79 +1,211 @@
-Projet : Assistant IA Métier - (RAG )
-Présentation du Projet
-Ce projet présente un Proof of Concept (POC) d'un assistant conversationnel basé sur l'architecture RAG (Retrieval-Augmented Generation). L'objectif est de permettre aux collaborateurs d'interroger la base de connaissances interne de l'entreprise (procédures, guides, politiques RH) de manière intuitive et sécurisée.
+# 🧠 Assistant IA Métier – Architecture RAG (POC)
 
-Fonctionnalités Principales
-Recherche Sémantique : Compréhension du langage naturel pour extraire des informations sans correspondance exacte des mots-clés.
+## 📌 Présentation du projet
 
-Maîtrise de l'Information : Réponses limitées strictement au contexte des documents fournis pour éliminer les risques d'hallucination.
+Ce projet est un **Proof of Concept (POC)** d’un **assistant conversationnel intelligent** basé sur l’architecture **RAG (Retrieval-Augmented Generation)**.
 
-Citations des Sources : Pour chaque réponse, l'assistant indique le document source et le numéro de page correspondant.
+L’objectif est de permettre aux collaborateurs d’interroger **la base de connaissances interne de l’entreprise** (procédures, guides, politiques RH, documents métiers) de manière :
 
-Accessibilité : Possibilité de télécharger le document original directement depuis l'interface.
+* intuitive
+* sécurisée
+* fiable (sans hallucinations)
 
-Architecture Technique
-Extraction et Découpage : Utilisation de PyPDFLoader et RecursiveCharacterTextSplitter (chunks de 1500 caractères).
+---
 
-Base Vectorielle : ChromaDB pour le stockage des embeddings générés par HuggingFace.
+## ✨ Fonctionnalités principales
 
-Modèle de Langage (LLM) : Llama 3.1 hébergé sur l'infrastructure Groq pour une génération haute performance.
+### 🔍 Recherche sémantique
 
-Prérequis Système
-Avant de commencer, assurez-vous d'avoir installé :
+* Compréhension du langage naturel
+* Pas besoin de correspondance exacte de mots-clés
 
-Python 3.9 ou une version supérieure.
-Git (pour cloner le projet).
-Un compte sur Groq Cloud pour obtenir une clé API.https://console.groq.com/home
+### 🧠 Maîtrise de l’information
+
+* Les réponses sont **strictement limitées au contenu des documents fournis**
+* Réduction drastique des risques d’hallucination du LLM
+
+### 📚 Citations des sources
+
+* Chaque réponse inclut :
+
+  * le **document source**
+  * le **numéro de page**
+
+### ⬇️ Accès aux documents
+
+* Téléchargement direct du document PDF depuis l’interface utilisateur
+
+---
+
+## 🏗️ Architecture technique
+
+### 📄 Ingestion & préparation des documents
+
+* Chargement des PDF via `PyPDFLoader`
+* Découpage intelligent avec `RecursiveCharacterTextSplitter`
+
+  * Taille des chunks : **1500 caractères**
+
+### 🧩 Base vectorielle
+
+* **ChromaDB** pour le stockage des embeddings
+* Embeddings générés via **HuggingFace**
+
+### 🤖 Modèle de langage (LLM)
+
+* **Llama 3.1**
+* Hébergé sur l’infrastructure **Groq Cloud**
+* Génération rapide et performante
+
+---
+
+## ⚙️ Prérequis système
+
+Avant de commencer, assurez-vous d’avoir :
+
+* **Python 3.9** ou supérieur
+* **Git**
+* Un compte **Groq Cloud**
+  👉 [https://console.groq.com/home](https://console.groq.com/home)
+
+### 🔑 Variable d’environnement requise
+
+```env
 GROQ_API_KEY=votre_cle_api
+```
 
+---
 
-Cloner le repository :
+## 🚀 Installation
+
+### 1️⃣ Cloner le repository
+
+```bash
 git clone https://github.com/------/Assistant_IA.git
 cd Assistant_IA
+```
 
-Créer un environnement virtuel :
+### 2️⃣ Créer et activer un environnement virtuel
+
+```bash
 python -m venv env
-env\Scripts\activate
+env\Scripts\activate   # Windows
+# source env/bin/activate  # Linux / Mac
+```
 
-Installation des dépendances :
+### 3️⃣ Installer les dépendances
+
+```bash
 pip install -r requirements.txt
+```
 
+---
 
-Structure du Répertoire
-plaintext
+## 📁 Structure du projet
+
+```plaintext
 Assistant_IA/
-├── app/                   # Interface utilisateur Streamlit
+├── app/                     # Interface utilisateur (Streamlit)
 │   └── chat.py
-├── chroma_db/             # Base de données vectorielle (générée)    
-├── ingestion/             # Nouveau package d'ingestion
+│
+├── chroma_db/               # Base vectorielle (générée automatiquement)
+│
+├── ingestion/               # Pipeline d’ingestion des documents
 │   ├── __init__.py
-│   ├── embed_store.py      # Création des vecteurs et stockage  
-│   ├── chunking.py         # Découpage du texte
-│   └── load_docs.py        # Chargement des PDF        # Interface utilisateur (Streamlit)
-├── rag/
-    ├── __init__.py
-│   ├── retriever.py       # Moteur de recherche vectorielle
-│   └── generator.py       # Logique de génération (Groq API)
+│   ├── load_docs.py         # Chargement des PDF
+│   ├── chunking.py          # Découpage du texte
+│   └── embed_store.py       # Génération et stockage des embeddings
+│
+├── rag/                     # Logique RAG
+│   ├── __init__.py
+│   ├── retriever.py         # Recherche vectorielle
+│   └── generator.py         # Génération de réponse (Groq API)
+│
 ├── Data/
-│   └── Documents/         # Sources PDF
-├── .env                   
-├── .gitignore/
-│   └── .env               # Exclusion des fichiers sensibles          
-├── .env.example           # Modèle de configuration des clés API
-├── main.py                #Chaîne de Traitement des Données
-└── requirements.txt       # Dépendances Python
+│   └── Documents/           # Sources PDF
+│
+├── .env                     # Variables d’environnement (non versionné)
+├── .env.example             # Modèle de configuration
+├── .gitignore
+├── main.py                  # Chaîne complète d’ingestion
+└── requirements.txt         # Dépendances Python
+```
 
-Lancer  la génération de la base vectorielle :
+---
+
+## 🧪 Génération de la base vectorielle
+
+Après avoir ajouté vos documents PDF dans :
+
+```plaintext
+Data/Documents/
+```
+
+Lancez :
+
+```bash
 python main.py
+```
 
-Exécution :
+Cela :
+
+* charge les documents
+* les découpe
+* génère les embeddings
+* les stocke dans ChromaDB
+
+---
+
+## ▶️ Lancer l’application
+
+```bash
 python -m streamlit run app/chat.py
+```
 
+L’interface Streamlit sera accessible depuis votre navigateur.
 
-Dépannage (FAQ)
-Erreur ModuleNotFoundError : Vérifiez que vous avez bien activé l'environnement virtuel et lancé pip install.
+---
 
-L'assistant dit qu'il ne trouve pas de source : Assurez-vous d'avoir lancé python ingestion/embed_store.py après avoir ajouté des PDF dans le dossier Data/Documents/.
+## 🛠️ Dépannage (FAQ)
 
-Erreur de clé API : Vérifiez que le fichier .env est correctement nommé et que la clé Groq commence bien par gsk_.
+### ❌ `ModuleNotFoundError`
 
+* Vérifiez que l’environnement virtuel est bien activé
+* Relancez :
+
+```bash
+pip install -r requirements.txt
+```
+
+### ❌ L’assistant ne trouve aucune source
+
+* Vérifiez que des PDF sont bien présents dans `Data/Documents/`
+* Relancez :
+
+```bash
+python main.py
+```
+
+### ❌ Erreur de clé API Groq
+
+* Vérifiez que le fichier `.env` existe bien
+* La clé doit commencer par : `gsk_`
+
+---
+
+## 📌 Notes
+
+* Ce projet est un **POC** et peut être étendu :
+
+  * authentification utilisateur
+  * gestion des rôles
+  * ajout d’autres formats de documents
+  * déploiement cloud
+
+---
+
+Si tu veux, je peux aussi :
+
+* ajouter une section **“Améliorations futures”**
+* le rendre **bilingue (FR/EN)**
+* ou l’adapter à un **contexte entreprise / client** 😄
