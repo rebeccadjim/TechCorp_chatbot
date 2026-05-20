@@ -14,7 +14,7 @@ load_dotenv()
 st.set_page_config(page_title="Assistant Editheos", page_icon=":book:", layout="centered")
 
 # Load config
-with open("App/config.yaml") as f:
+with open("config.yaml") as f:
     config = yaml.load(f, Loader=SafeLoader)
 
 # Auth
