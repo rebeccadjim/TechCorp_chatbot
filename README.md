@@ -201,11 +201,3 @@ python main.py
   * gestion des rôles
   * ajout d’autres formats de documents
   * déploiement cloud
-
----
-
-Si tu veux, je peux aussi :
-
-* ajouter une section **“Améliorations futures”**
-* le rendre **bilingue (FR/EN)**
-* ou l’adapter à un **contexte entreprise / client** 😄

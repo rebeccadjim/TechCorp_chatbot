@@ -3,76 +3,108 @@ import os
 from dotenv import load_dotenv 
 from rag.retriever import get_relevant_chunks
 from rag.generator import generate_answer
+import streamlit_authenticator as stauth
+import yaml
+from yaml.loader import SafeLoader
 
 # --- CHARGEMENT DE LA CLÉ API ---
 load_dotenv()
 
 # Configuration de la page
-st.set_page_config(page_title="🤖 Assistant RH TechCorp", page_icon="🤖")
+st.set_page_config(page_title="Assistant Editheos", page_icon=":book:", layout="centered")
 
-st.title(" 🤖 Assistant RH TechCorp")
-st.markdown("Bienvenue, comment puis-je vous aider aujourd'hui ?")
+# Load config
+with open("App/config.yaml") as f:
+    config = yaml.load(f, Loader=SafeLoader)
 
-# Initialisation de l'historique
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# Auth
+authenticator = stauth.Authenticate(
+    config["credentials"],
+    config["cookie"]["name"],
+    config["cookie"]["key"],
+    config["cookie"]["expiry_days"]
+)
 
-# Affichage des messages
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+authenticator.login(location="main")
+name = st.session_state.get("name")
+auth_status = st.session_state.get("authentication_status")
+username = st.session_state.get("username")
 
-# Zone de saisie
-if prompt := st.chat_input("Votre message..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+# Not logged in
+if auth_status is False:
+    st.error("Identifiant ou mot de passe incorrect")
+    st.stop()
 
-    with st.chat_message("assistant"):
-        with st.spinner("Recherche dans la base de connaissances..."):
-            try:
-                # 1. Recherche des morceaux (chunks)
-                chunks = get_relevant_chunks(prompt)
-                
-                # 2. Génération de la réponse
-                reponse = generate_answer(prompt, chunks)
-                st.markdown(reponse)
-                
-                # --- 3. AFFICHAGE CONDITIONNEL DES SOURCES ---
-                mots_cles_refus = ["désolé", "ne sais pas", "pas trouvé", "pas de mention", "aucun document"]
-                
-                if not any(mot in reponse.lower() for mot in mots_cles_refus):
-                    if chunks:
-                        with st.expander("📄 Vérifier les sources et télécharger les documents"):
-                            st.write("Documents utilisés pour cette réponse :")
-                            
-                            for i, doc in enumerate(chunks):
-                                file_path = doc.metadata.get('source')
-                                if file_path and os.path.exists(file_path):
-                                    nom_fichier = os.path.basename(file_path)
-                                    page = doc.metadata.get('page', '?')
-                                    
-                                    # Détection dynamique du type de fichier
-                                    extension = os.path.splitext(nom_fichier)[1].lower()
-                                    type_mime = "application/pdf" if extension == ".pdf" else "text/plain"
+elif auth_status is None:
+    st.warning("Veuillez entrer vos identifiants")
+    st.stop()
 
-                                    st.info(f"**Source {i+1}:** {nom_fichier} (Page {page})")
-                                    st.caption(f"Extrait : {doc.page_content[:150]}...")
+# Logged in → show chatbot
+elif auth_status:
 
-                                    with open(file_path, "rb") as f:
-                                        st.download_button(
-                                            label=f"📥 Télécharger {nom_fichier}",
-                                            data=f,
-                                            file_name=nom_fichier,
-                                            mime=type_mime,
-                                            key=f"dl_{i}_{nom_fichier}"
-                                        )
-                                    st.divider()
-                else:
-                    st.warning("⚠️ Aucune source officielle n'a été trouvée pour cette demande.")
+    st.title("Assistant Editheos")
+    st.markdown("Bienvenue, comment puis-je vous aider aujourd'hui ?")
 
-            except Exception as e:
-                st.error(f"Erreur technique : {e}")
-                reponse = "Désolé, une erreur est survenue."
-        
-    st.session_state.messages.append({"role": "assistant", "content": reponse})
+    # Initialisation de l'historique
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Affichage des messages
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # Zone de saisie
+    if prompt := st.chat_input("Votre message..."):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Recherche dans la base de connaissances..."):
+                try:
+                    # 1. Recherche des morceaux (chunks)
+                    chunks = get_relevant_chunks(prompt)
+                    
+                    # 2. Génération de la réponse
+                    reponse = generate_answer(prompt, chunks)
+                    st.markdown(reponse)
+                    
+                    # --- 3. AFFICHAGE CONDITIONNEL DES SOURCES ---
+                    mots_cles_refus = ["désolé", "ne sais pas", "pas trouvé", "pas de mention", "aucun document"]
+                    
+                    if not any(mot in reponse.lower() for mot in mots_cles_refus):
+                        if chunks:
+                            with st.expander("📄 Vérifier les sources et télécharger les documents"):
+                                st.write("Documents utilisés pour cette réponse :")
+                                
+                                for i, doc in enumerate(chunks):
+                                    file_path = doc.metadata.get('source')
+                                    if file_path and os.path.exists(file_path):
+                                        nom_fichier = os.path.basename(file_path)
+                                        page = doc.metadata.get('page', '?')
+                                        
+                                        # Détection dynamique du type de fichier
+                                        extension = os.path.splitext(nom_fichier)[1].lower()
+                                        type_mime = "application/pdf" if extension == ".pdf" else "text/plain"
+
+                                        st.info(f"**Source {i+1}:** {nom_fichier} (Page {page})")
+                                        st.caption(f"Extrait : {doc.page_content[:150]}...")
+
+                                        with open(file_path, "rb") as f:
+                                            st.download_button(
+                                                label=f"📥 Télécharger {nom_fichier}",
+                                                data=f,
+                                                file_name=nom_fichier,
+                                                mime=type_mime,
+                                                key=f"dl_{i}_{nom_fichier}"
+                                            )
+                                        st.divider()
+                    else:
+                        st.warning("⚠️ Aucune source officielle n'a été trouvée pour cette demande.")
+
+                except Exception as e:
+                    st.error(f"Erreur technique : {e}")
+                    reponse = "Désolé, une erreur est survenue."
+            
+        st.session_state.messages.append({"role": "assistant", "content": reponse})

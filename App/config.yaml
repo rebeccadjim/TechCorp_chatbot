@@ -1,0 +1,12 @@
+credentials:
+  usernames:
+    owner:
+      first_name: Propriétaire
+      last_name: ""
+      email: ""
+      password: "$2b$12$5gNliebPcBQnAEesYplIMeo8nNnefuHIA6wYS2hy9kRa1kU9mz3Fy"
+
+cookie:
+  name: chatbot_session
+  key: une_cle_secrete_longue_et_aleatoire
+  expiry_days: 1

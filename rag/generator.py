@@ -23,7 +23,7 @@ def generate_answer(question, context_chunks):
     context_text = "\n\n".join([doc.page_content for doc in context_chunks])
     
     system_prompt = (
-        "Tu es l'assistant strictement limité aux documents de TechCorp. "
+        "Tu es un assistant utile. Réponds à la question en détail en te basant UNIQUEMENT sur le contexte ci-dessous. Donne une réponse complète et approfondie en plusieurs phrases. Ne donne pas de réponses en une seule ligne. "
         f"CONTEXTE FOURNI : \n{context_text}\n\n"
         "CONSIGNE : Réponds à la question en utilisant EXCLUSIVEMENT le contexte ci-dessus. "
         "Si la réponse n'est pas dans le texte, réponds que tu ne sais pas."
