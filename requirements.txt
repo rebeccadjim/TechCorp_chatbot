@@ -2,6 +2,7 @@ streamlit
 streamlit_authenticator
 langchain
 langchain-community
+langchain-chroma
 langchain-groq
 langchain-huggingface
 chromadb
