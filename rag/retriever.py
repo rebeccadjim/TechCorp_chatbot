@@ -19,8 +19,8 @@ def get_relevant_chunks(query):
             embedding_function=embeddings
         )
         
-        # k=5 : on récupère les 5 meilleurs extraits
-        search_results = vectorstore.similarity_search(query, k=5)
+        # k=6 : on récupère les 6 meilleurs extraits
+        search_results = vectorstore.similarity_search(query, k=6)
         
         return search_results
         
